@@ -9,6 +9,37 @@
   const container = document.getElementById('calculator');
   let calculator;
   let statusTimer;
+  let isApplyingRpc = false;
+  let mcpStatus = window.__DESMOS_MCP_STATUS__;
+
+  function toggleMcpPanel() {
+    const panel = document.getElementById('mcp-panel');
+    const button = document.querySelector('[data-action="toggleMcp"]');
+    const hidden = panel.classList.toggle('mcp-panel-hidden');
+    panel.setAttribute('aria-hidden', String(hidden));
+    button.classList.toggle('toolbar-button-active', !hidden);
+    button.title = hidden ? 'Show MCP status' : 'Hide MCP status';
+  }
+
+  function renderMcpStatus(next) {
+    mcpStatus = next || mcpStatus;
+    const enabled = !!mcpStatus.enabled;
+    const running = !!mcpStatus.running;
+    const connected = !!mcpStatus.connected;
+    const title = document.getElementById('mcp-title');
+    const summary = document.getElementById('mcp-summary');
+    const chip = document.getElementById('mcp-chip');
+    const dot = document.getElementById('mcp-dot');
+    const detail = document.getElementById('mcp-detail');
+    const toggle = document.getElementById('mcp-toggle');
+    dot.className = `mcp-dot ${!enabled || !running ? 'red' : connected ? 'green' : 'blue'}`;
+    chip.className = `mcp-chip ${!enabled || !running ? 'error' : connected ? 'connected' : 'good'}`;
+    chip.textContent = !enabled ? 'Off' : !running ? 'Error' : connected ? `Connected · Port ${mcpStatus.port}` : `Running · Port ${mcpStatus.port}`;
+    title.textContent = !enabled ? 'Local MCP Disabled' : !running ? 'Local MCP Needs Attention' : connected ? 'Local MCP Connected' : 'Local MCP Ready';
+    summary.textContent = !enabled ? 'Enable MCP to let local AI clients connect to this VS Code window.' : connected ? 'An MCP client is connected and can inspect or edit the active graph.' : running ? 'External MCP clients can connect through this local endpoint.' : 'MCP is enabled, but the local server is not reachable.';
+    detail.textContent = running ? `Endpoint: ${mcpStatus.url}` : (mcpStatus.lastError || 'No active endpoint');
+    toggle.textContent = enabled ? 'Turn Off MCP' : 'Turn On MCP';
+  }
 
   function notify(text) {
     status.textContent = text || '';
@@ -18,6 +49,56 @@
 
   function getStateText() {
     return JSON.stringify(calculator.getState(), null, 2);
+  }
+
+  function getState() {
+    return calculator.getState();
+  }
+
+  function createRpcError(error) {
+    return {
+      code: 'DESMOS_RPC_FAILED',
+      message: error instanceof Error ? error.message : String(error)
+    };
+  }
+
+  function patchExpressions(operations) {
+    for (const operation of operations || []) {
+      if (operation.type === 'add') calculator.setExpression(operation.expression);
+      else if (operation.type === 'update') calculator.setExpression({ id: operation.id, ...operation.patch });
+      else if (operation.type === 'remove') calculator.removeExpression({ id: operation.id });
+      else throw new Error(`Unsupported expression operation: ${operation.type}`);
+    }
+    return { state: getState(), applied: (operations || []).length };
+  }
+
+  function handleRpc(method, params) {
+    switch (method) {
+      case 'session.getSummary': {
+        const state = getState();
+        return {
+          expressionCount: state.expressions?.list?.length || 0,
+          viewport: state.graph?.viewport,
+          settings: state.graph || {}
+        };
+      }
+      case 'graph.getState':
+        return getState();
+      case 'expressions.list':
+        return getState().expressions?.list || [];
+      case 'expressions.patch':
+        return patchExpressions(params.operations);
+      case 'viewport.set':
+        calculator.setMathBounds(params.viewport);
+        return { viewport: getState().graph?.viewport, state: getState() };
+      case 'settings.set':
+        calculator.updateSettings(params.settings || {});
+        return { settings: params.settings || {}, state: getState() };
+      case 'graph.capturePng':
+        return calculator.screenshot({ targetPixelRatio: params.targetPixelRatio || 2 });
+      default:
+        throw new Error(`Unsupported calculator RPC method: ${method}`);
+    }
   }
 
   function loadState(content) {
@@ -58,6 +139,9 @@
       case 'openInEditor':
         vscode.postMessage({ type: 'openInEditor' });
         break;
+      case 'toggleMcp':
+        toggleMcpPanel();
+        break;
       default:
         notify('Unknown action');
     }
@@ -77,18 +161,35 @@
 
     // Sync Desmos changes to the host to support VS Code dirty state and save lifecycle.
     calculator.observeEvent('change', () => {
-      vscode.postMessage({ type: 'documentChanged', content: getStateText() });
+      if (!isApplyingRpc) {
+        vscode.postMessage({ type: 'documentChanged', content: getStateText() });
+      }
     });
 
     document.querySelectorAll('[data-action]').forEach(button => {
       button.addEventListener('click', () => handleAction(button.dataset.action));
     });
+    document.getElementById('mcp-toggle').addEventListener('click', () => vscode.postMessage({ type: 'mcp:setEnabled', enabled: !mcpStatus.enabled }));
+    document.getElementById('mcp-info').addEventListener('click', () => vscode.postMessage({ type: 'mcp:info' }));
+    renderMcpStatus(mcpStatus);
   }
 
   window.addEventListener('message', event => {
     const message = event.data || {};
     if (message.type === 'load') loadState(message.content);
     if (message.type === 'notify') notify(message.text);
+    if (message.type === 'mcpStatus') renderMcpStatus(message.status);
+    if (message.type === 'calculatorRpcRequest') {
+      try {
+        isApplyingRpc = true;
+        const result = handleRpc(message.method, message.params || {});
+        vscode.postMessage({ type: 'calculatorRpcResponse', requestId: message.requestId, ok: true, result });
+      } catch (error) {
+        vscode.postMessage({ type: 'calculatorRpcResponse', requestId: message.requestId, ok: false, error: createRpcError(error) });
+      } finally {
+        isApplyingRpc = false;
+      }
+    }
   });
 
   if (document.readyState === 'loading') {

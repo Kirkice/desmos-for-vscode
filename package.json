@@ -14,9 +14,13 @@
     "onCustomEditor:desmos.graph"
   ],
   "main": "./extension.js",
+  "scripts": {
+    "mcp": "node ./mcp-server/index.js"
+  },
   "files": [
     "extension.js",
     "vendor/desmos/**/*.js",
+    "mcp-server/**/*.js",
     "resources/**/*.svg",
     "src/**/*.js",
     "src/**/*.css",
@@ -32,12 +36,50 @@
           "light": "resources/desmos-command.svg",
           "dark": "resources/desmos-command.svg"
         }
+      },
+      {
+        "command": "vscode-desmos.copyMcpConfiguration",
+        "title": "Desmos: Copy MCP Configuration"
+      },
+      {
+        "command": "vscode-desmos.showMcpServerInfo",
+        "title": "Desmos: Show MCP Server Info"
+      },
+      {
+        "command": "vscode-desmos.toggleMcpServer",
+        "title": "Desmos: Toggle MCP Server"
       }
     ],
+    "configuration": {
+      "title": "Desmos",
+      "properties": {
+        "desmos.mcpServer.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the local Desmos MCP server."
+        },
+        "desmos.mcpServer.port": {
+          "type": "number",
+          "default": 38968,
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Port used by the local Desmos MCP server."
+        }
+      }
+    },
     "menus": {
       "commandPalette": [
         {
           "command": "vscode-desmos.openCalculator"
+        },
+        {
+          "command": "vscode-desmos.copyMcpConfiguration"
+        },
+        {
+          "command": "vscode-desmos.showMcpServerInfo"
+        },
+        {
+          "command": "vscode-desmos.toggleMcpServer"
         }
       ],
       "editor/title": [

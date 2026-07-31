@@ -6,11 +6,19 @@ const { createWebviewHtml } = require('../webview/webviewHtml');
 
 /** VS Code Custom Editor Provider: orchestrates editor lifecycle only. */
 class DesmosEditorProvider {
-  constructor(context) {
+  constructor(context, { sessionRegistry, rpcBroker }) {
     this.context = context;
     this.fileService = new FileService();
+    this.sessionRegistry = sessionRegistry;
+    this.rpcBroker = rpcBroker;
     this.documents = new Map();
+    this.panels = new Set();
+    this.mcpController = undefined;
     this._onDidChangeCustomDocument = new vscode.EventEmitter();
+  }
+
+  setMcpController(controller) {
+    this.mcpController = controller;
   }
 
   get onDidChangeCustomDocument() {
@@ -33,8 +41,7 @@ class DesmosEditorProvider {
       vscode.Uri.parse(`untitled:Desmos-${Date.now()}.des`),
       ''
     );
-    this.configurePanel(panel, document);
-    panel.onDidDispose(() => document.dispose());
+    this.configurePanel(panel, document, 'standalone');
     return panel;
   }
 
@@ -48,11 +55,11 @@ class DesmosEditorProvider {
   }
 
   async resolveCustomEditor(document, webviewPanel) {
-    this.configurePanel(webviewPanel, document);
+    this.configurePanel(webviewPanel, document, 'document');
   }
 
   /** Configures the Webview shared by custom editors and standalone calculators. */
-  configurePanel(webviewPanel, document) {
+  configurePanel(webviewPanel, document, kind) {
     webviewPanel.webview.options = {
       enableScripts: true,
       localResourceRoots: [this.context.extensionUri]
@@ -60,7 +67,8 @@ class DesmosEditorProvider {
     webviewPanel.webview.html = createWebviewHtml(
       webviewPanel.webview,
       this.context.extensionUri,
-      document.content
+      document.content,
+      { mcpStatus: this.mcpController?.getStatus?.() }
     );
 
     const router = new MessageRouter({
@@ -68,7 +76,36 @@ class DesmosEditorProvider {
       document,
       fileService: this.fileService
     });
-    webviewPanel.onDidDispose(() => router.dispose());
+    const session = this.sessionRegistry.register({ panel: webviewPanel, document, kind });
+    this.panels.add(webviewPanel);
+    const documentDisposable = document.onDidChange(() => this.sessionRegistry.incrementRevision(session.sessionId));
+    const messageDisposable = webviewPanel.webview.onDidReceiveMessage(message => {
+      if (message.type === 'calculatorRpcResponse') this.rpcBroker.resolve(message);
+      if (message.type === 'mcp:setEnabled') {
+        void this.mcpController?.setEnabled(message.enabled).then(() => this.postMcpStatus(webviewPanel));
+      }
+      if (message.type === 'mcp:info') void this.mcpController?.showInfo();
+    });
+    webviewPanel.onDidChangeViewState(event => {
+      if (event.webviewPanel.active) this.sessionRegistry.touch(session.sessionId);
+    });
+    webviewPanel.onDidDispose(() => {
+      router.dispose();
+      messageDisposable.dispose();
+      documentDisposable.dispose();
+      this.sessionRegistry.unregister(session.sessionId);
+      this.panels.delete(webviewPanel);
+      if (kind === 'standalone') document.dispose();
+    });
+  }
+
+  postMcpStatus(panel) {
+    const status = this.mcpController?.getStatus?.();
+    if (status) void panel.webview.postMessage({ type: 'mcpStatus', status });
+  }
+
+  updateMcpStatus(status) {
+    for (const panel of this.panels) void panel.webview.postMessage({ type: 'mcpStatus', status });
   }
 
   async saveCustomDocument(document) {
@@ -96,6 +133,7 @@ class DesmosEditorProvider {
     this._onDidChangeCustomDocument.dispose();
     for (const document of this.documents.values()) document.dispose();
     this.documents.clear();
+    this.panels.clear();
   }
 }
 

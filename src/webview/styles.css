@@ -133,6 +133,33 @@ body {
   background: #1e1e1e;
 }
 
+.mcp-panel {
+  background: linear-gradient(135deg, #252631, #20212a);
+  border-bottom: 1px solid #383a49;
+  padding: 12px 16px;
+}
+.mcp-panel-hidden { display: none; }
+.toolbar-button-mcp { color: #a9d7ff; }
+.toolbar-button-active { background: #2c4e68; border-color: #4d86b5; color: #d9efff; }
+.mcp-panel-heading, .mcp-heading-main, .mcp-actions { align-items: center; display: flex; }
+.mcp-panel-heading { justify-content: space-between; gap: 12px; }
+.mcp-heading-main { gap: 10px; }
+.mcp-dot { border-radius: 50%; display: inline-block; height: 9px; width: 9px; }
+.mcp-dot.blue { background: #5aa9ff; box-shadow: 0 0 8px #5aa9ff88; }
+.mcp-dot.green { background: #77d783; box-shadow: 0 0 8px #77d78388; }
+.mcp-dot.red { background: #e56b74; }
+.mcp-title { color: #f2f3f8; font-size: 13px; font-weight: 650; }
+.mcp-summary, .mcp-detail { color: #9da2b5; font-size: 11px; margin-top: 4px; }
+.mcp-detail { margin: 8px 0 0 19px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mcp-chip { border: 1px solid #4a4d5c; border-radius: 999px; color: #c9cbd7; font-size: 11px; padding: 4px 8px; }
+.mcp-chip.good { border-color: #477eaa; color: #8fc8ff; }
+.mcp-chip.connected { border-color: #4b8956; color: #9de5a6; }
+.mcp-chip.error { border-color: #8d4f57; color: #ff9da5; }
+.mcp-actions { gap: 7px; margin: 10px 0 0 19px; }
+.mcp-button { background: #3d9852; border: 1px solid #51ad66; border-radius: 5px; color: #fff; cursor: pointer; font: inherit; font-size: 11px; padding: 5px 10px; }
+.mcp-button-ghost { background: transparent; border-color: #464957; color: #c9cbd7; }
+.mcp-button:hover { filter: brightness(1.15); }
+
 /* Style controllable outer regions; invertedColors handles Desmos internal controls. */
 #calculator,
 #calculator > * {

@@ -33,6 +33,9 @@ class MessageRouter {
         case 'info':
           vscode.window.showInformationMessage('Desmos Offline Graphing Calculator');
           break;
+        case 'calculatorRpcResponse':
+          // Handled by CalculatorRpcBroker through the panel-level listener.
+          break;
         default:
           this.notify('Unsupported action');
       }

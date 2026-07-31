@@ -21,6 +21,10 @@ function createWebviewHtml(webview, extensionUri, initialState, options = {}) {
     vscode.Uri.joinPath(extensionUri, 'src', 'webview', 'styles.css')
   );
   const safeState = JSON.stringify(initialState || '').replace(/</g, '\\u003c');
+  const safeMcpStatus = JSON.stringify(options.mcpStatus || {
+    enabled: true, running: false, connected: false, host: '127.0.0.1', port: 38968,
+    path: '/rpc', url: 'http://127.0.0.1:38968/rpc', toolNames: []
+  }).replace(/</g, '\\u003c');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -56,13 +60,26 @@ function createWebviewHtml(webview, extensionUri, initialState, options = {}) {
       </button>
       <button class="toolbar-button" data-action="export" title="Export PNG image">
         <span class="button-icon" aria-hidden="true">⇩</span><span>Export</span>
+      </button>
+      <span class="toolbar-divider" aria-hidden="true"></span>
+      <button class="toolbar-button toolbar-button-mcp" data-action="toggleMcp" title="Show or hide MCP status">
+        <span class="button-icon" aria-hidden="true">⌁</span><span>MCP</span>
       </button>${options.compact ? '<button class="toolbar-button" data-action="openInEditor" title="Open in editor"><span class="button-icon" aria-hidden="true">↗</span><span>Open in Editor</span></button>' : ''}
     </div>
     <span id="status" role="status" aria-live="polite"></span>
   </header>
+  <section id="mcp-panel" class="mcp-panel mcp-panel-hidden" aria-label="Local MCP status" aria-hidden="true">
+    <div class="mcp-panel-heading">
+      <div class="mcp-heading-main"><span id="mcp-dot" class="mcp-dot"></span><div><div id="mcp-title" class="mcp-title">Local MCP</div><div id="mcp-summary" class="mcp-summary"></div></div></div>
+      <span id="mcp-chip" class="mcp-chip"></span>
+    </div>
+    <div id="mcp-detail" class="mcp-detail"></div>
+    <div class="mcp-actions"><button id="mcp-toggle" class="mcp-button" type="button"></button><button id="mcp-info" class="mcp-button mcp-button-ghost" type="button">MCP Info</button></div>
+  </section>
   <main id="calculator" aria-label="Desmos Calculator"></main>
   <script nonce="${nonce}">
     window.__DESMOS_INITIAL_STATE__ = ${safeState};
+    window.__DESMOS_MCP_STATUS__ = ${safeMcpStatus};
   </script>
   <script nonce="${nonce}" src="${calculatorUri}"></script>
   <script nonce="${nonce}" src="${scriptUri}"></script>
