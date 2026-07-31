@@ -1,0 +1,35 @@
+# Node.js 依赖与包管理日志
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# VS Code 扩展打包与临时产物
+*.vsix
+*.vsixmanifest
+out/
+dist/
+coverage/
+.nyc_output/
+
+# TypeScript / 构建缓存
+*.tsbuildinfo
+.cache/
+temp/
+tmp/
+
+# 本地调试与操作系统文件
+.vscode/*.log
+.vscode/.ropeproject
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 本地测试数据与导出文件
+*.des
+*.png
+
+# 保留仓库中的扩展推荐配置
+!.vscode/
+!.vscode/extensions.json

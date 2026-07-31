@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- 产品 Logo：黑色背景上的白色 Desmos 曲线标志。 -->
+  <rect width="256" height="256" fill="#000"/>
+  <g fill="none" stroke="#fff" stroke-width="19" stroke-linecap="butt" stroke-linejoin="round">
+    <path d="M28 0C46 77 73 127 111 174M228 0C210 77 183 127 145 174"/>
+    <path d="M0 151C28 178 42 195 68 195C96 195 103 151 128 151C153 151 160 195 188 195C214 195 228 178 256 151" stroke-linecap="round"/>
+    <path d="M85 184C99 171 112 160 128 160C144 160 157 171 171 184" stroke-linecap="round"/>
+  </g>
+</svg>
