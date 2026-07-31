@@ -17,6 +17,8 @@ class McpGateway {
     this.connected = false;
     this.lastError = undefined;
     this.clientConnectedListeners = new Set();
+    this.statusListeners = new Set();
+    this.infoVisible = false;
   }
 
   async start() {
@@ -31,6 +33,7 @@ class McpGateway {
       this.server = server;
       this.port = server.address().port;
       this.lastError = undefined;
+      this.notifyStatusChanged();
     } catch (error) {
       server.close();
       this.server = undefined;
@@ -88,15 +91,37 @@ class McpGateway {
     return { dispose: () => this.clientConnectedListeners.delete(listener) };
   }
 
+  onStatusChanged(listener) {
+    this.statusListeners.add(listener);
+    return { dispose: () => this.statusListeners.delete(listener) };
+  }
+
   async showConnectionInfo() {
+    await this.startIfEnabled();
     const status = this.getStatus();
+    this.infoVisible = true;
     const channel = this.output || vscode.window.createOutputChannel('Desmos MCP');
     const endpoint = status.url;
     const vsCodeConfig = buildVsCodeConfig(this, endpoint);
     const genericConfig = buildGenericConfig(this, endpoint);
+    this.renderConnectionInfo(channel, status, endpoint, vsCodeConfig, genericConfig);
+    channel.show(true);
+
+    const choice = await vscode.window.showInformationMessage(
+      status.running ? `Desmos MCP is ${status.connected ? 'connected' : 'running'} on port ${status.port}.` : 'Desmos MCP is not running.',
+      'Copy Endpoint', 'Copy VS Code Config', 'Copy Generic Config'
+    );
+    if (choice === 'Copy Endpoint') await vscode.env.clipboard.writeText(endpoint);
+    if (choice === 'Copy VS Code Config') await vscode.env.clipboard.writeText(vsCodeConfig);
+    if (choice === 'Copy Generic Config') await vscode.env.clipboard.writeText(genericConfig);
+    return status;
+  }
+
+  renderConnectionInfo(channel, status, endpoint, vsCodeConfig, genericConfig) {
     channel.clear();
     channel.appendLine('Desmos MCP');
-    channel.appendLine('==========' );
+    channel.appendLine('==========');
+    channel.appendLine(`Last updated: ${new Date().toLocaleTimeString()}`);
     channel.appendLine(`Enabled: ${status.enabled}`);
     channel.appendLine(`Running: ${status.running}`);
     channel.appendLine(`Connected: ${status.connected}`);
@@ -112,16 +137,6 @@ class McpGateway {
     channel.appendLine('');
     channel.appendLine('Generic MCP client configuration:');
     channel.appendLine(genericConfig);
-    channel.show(true);
-
-    const choice = await vscode.window.showInformationMessage(
-      status.running ? `Desmos MCP is ${status.connected ? 'connected' : 'running'} on port ${status.port}.` : 'Desmos MCP is not running.',
-      'Copy Endpoint', 'Copy VS Code Config', 'Copy Generic Config'
-    );
-    if (choice === 'Copy Endpoint') await vscode.env.clipboard.writeText(endpoint);
-    if (choice === 'Copy VS Code Config') await vscode.env.clipboard.writeText(vsCodeConfig);
-    if (choice === 'Copy Generic Config') await vscode.env.clipboard.writeText(genericConfig);
-    return status;
   }
 
   async handle(request, response) {
@@ -132,6 +147,7 @@ class McpGateway {
       if (!this.connected) {
         this.connected = true;
         this.clientConnectedListeners.forEach(listener => listener(this.getStatus()));
+        this.notifyStatusChanged();
       }
       const result = await this.dispatch(payload.method, payload.params || {});
       this.respond(response, 200, { id: payload.id, result });
@@ -170,12 +186,28 @@ class McpGateway {
     const server = this.server;
     this.server = undefined;
     this.connected = false;
+    this.notifyStatusChanged();
     if (!server) return;
     await new Promise(resolve => server.close(() => resolve()));
   }
 
   isEnabled() {
     return getConfiguration().get('mcpServer.enabled', true) !== false;
+  }
+
+  notifyStatusChanged() {
+    const status = this.getStatus();
+    this.statusListeners.forEach(listener => listener(status));
+    if (this.infoVisible && this.output) {
+      const endpoint = status.url;
+      this.renderConnectionInfo(
+        this.output,
+        status,
+        endpoint,
+        buildVsCodeConfig(this, endpoint),
+        buildGenericConfig(this, endpoint)
+      );
+    }
   }
 }
 

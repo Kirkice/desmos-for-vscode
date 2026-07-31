@@ -95,11 +95,21 @@ async function handle(message) {
     const selected = tools.find(candidate => candidate.name === message.params?.name);
     if (!selected) throw new Error(`Unknown tool: ${message.params?.name}`);
     const result = await gatewayCall(selected.gatewayMethod, message.params?.arguments || {});
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      // MCP clients expect structuredContent to be an object, including for list results.
+      structuredContent: normalizeStructuredContent(result)
+    };
   }
   const error = new Error(`Method not found: ${message.method}`);
   error.rpcCode = -32601;
   throw error;
+}
+
+function normalizeStructuredContent(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? value
+    : { value };
 }
 
 const crypto = require('crypto');
