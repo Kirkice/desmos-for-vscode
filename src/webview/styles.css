@@ -1,0 +1,160 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top toolbar: low-contrast container, clear groups, and one primary save action. */
+#toolbar {
+  align-items: center;
+  background: linear-gradient(180deg, #252631 0%, #20212a 100%);
+  border-bottom: 1px solid #383a49;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 14px;
+}
+
+.toolbar-brand {
+  align-items: center;
+  color: #f2f3f8;
+  display: flex;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 650;
+  gap: 7px;
+  letter-spacing: .1px;
+}
+
+.toolbar-brand-mark {
+  fill: none;
+  height: 22px;
+  stroke: #77d783;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  width: 22px;
+}
+
+.toolbar-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.toolbar-button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #c9cbd7;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  gap: 5px;
+  line-height: 1;
+  min-height: 30px;
+  padding: 0 9px;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.toolbar-button:hover {
+  background: #323440;
+  border-color: #464957;
+  color: #fff;
+}
+
+.toolbar-button:active {
+  background: #3b3e4c;
+  transform: translateY(1px);
+}
+
+.toolbar-button-primary {
+  background: #3d9852;
+  border-color: #51ad66;
+  color: #fff;
+}
+
+.toolbar-button-primary:hover {
+  background: #4aaa61;
+  border-color: #68c77c;
+  color: #fff;
+}
+
+.toolbar-button:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007acc);
+  outline-offset: 2px;
+}
+
+.button-icon {
+  color: #9ca1b3;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.toolbar-button-primary .button-icon {
+  color: #e8ffec;
+}
+
+.toolbar-divider {
+  background: #414351;
+  height: 20px;
+  margin: 0 4px;
+  width: 1px;
+}
+
+#status {
+  margin-left: auto;
+  color: #9da2b5;
+  font-size: 12px;
+  min-height: 16px;
+  padding-right: 2px;
+}
+
+#calculator {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: #1e1e1e;
+}
+
+/* Style controllable outer regions; invertedColors handles Desmos internal controls. */
+#calculator,
+#calculator > * {
+  color-scheme: dark;
+}
+
+/* Compact mode keeps file actions available in narrow layouts. */
+#toolbar[data-compact="true"] {
+  gap: 8px;
+  padding: 4px 6px;
+}
+
+#toolbar[data-compact="true"] .toolbar-brand {
+  display: none;
+}
+
+#toolbar[data-compact="true"] .toolbar-button {
+  flex: 1 1 auto;
+  padding: 0 6px;
+}
+
+#toolbar[data-compact="true"] #status {
+  flex-basis: 100%;
+  margin-left: 0;
+}

@@ -3,7 +3,7 @@
 (function bootstrap() {
   'use strict';
 
-  // Webview 只负责界面交互和计算器状态，不直接访问文件系统。
+  // The Webview owns UI interaction and calculator state, never direct file-system access.
   const vscode = acquireVsCodeApi();
   const status = document.getElementById('status');
   const container = document.getElementById('calculator');
@@ -23,10 +23,10 @@
   function loadState(content) {
     try {
       calculator.setState(JSON.parse(content));
-      notify('已加载');
+      notify('Loaded');
     } catch (error) {
       calculator.setBlank();
-      notify('文件格式无效，已创建空白图形');
+      notify('Invalid file format. Created a blank graph.');
     }
   }
 
@@ -59,17 +59,23 @@
         vscode.postMessage({ type: 'openInEditor' });
         break;
       default:
-        notify('未知操作');
+        notify('Unknown action');
     }
   }
 
   function initialize() {
-    calculator = Desmos.GraphingCalculator(container);
+    // The Desmos API has no complete dark-theme switch. invertedColors adapts the
+    // canvas, axes, and curves while Webview CSS controls the surrounding UI.
+    calculator = Desmos.GraphingCalculator(container, {
+      invertedColors: true,
+      projectorMode: false,
+      autosize: true
+    });
     const initialState = window.__DESMOS_INITIAL_STATE__;
     if (initialState) loadState(initialState);
     else calculator.setExpression({ id: 'graph1', latex: 'y=x^2' });
 
-    // Desmos 状态变化时同步给宿主，支持 VS Code 的 dirty 状态和保存生命周期。
+    // Sync Desmos changes to the host to support VS Code dirty state and save lifecycle.
     calculator.observeEvent('change', () => {
       vscode.postMessage({ type: 'documentChanged', content: getStateText() });
     });

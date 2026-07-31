@@ -1,10 +1,10 @@
 const vscode = require('vscode');
 const { DesmosDocument } = require('./desmosDocument');
-const { FileService } = require('./fileService');
-const { MessageRouter } = require('./messageRouter');
-const { createWebviewHtml } = require('./webviewHtml');
+const { FileService } = require('../platform/fileService');
+const { MessageRouter } = require('../bridge/messageRouter');
+const { createWebviewHtml } = require('../webview/webviewHtml');
 
-/** VS Code Custom Editor Provider：只编排编辑器生命周期。 */
+/** VS Code Custom Editor Provider: orchestrates editor lifecycle only. */
 class DesmosEditorProvider {
   constructor(context) {
     this.context = context;
@@ -17,11 +17,11 @@ class DesmosEditorProvider {
     return this._onDidChangeCustomDocument.event;
   }
 
-  /** 打开不关联文件的独立计算器窗口。 */
+  /** Opens a standalone calculator panel that is not associated with a file. */
   openCalculator() {
     const panel = vscode.window.createWebviewPanel(
       'desmos.calculator',
-      'Desmos 计算器',
+      'Desmos Calculator',
       vscode.ViewColumn.One,
       {
         enableScripts: true,
@@ -51,7 +51,7 @@ class DesmosEditorProvider {
     this.configurePanel(webviewPanel, document);
   }
 
-  /** 统一配置自定义编辑器和独立计算器的 Webview。 */
+  /** Configures the Webview shared by custom editors and standalone calculators. */
   configurePanel(webviewPanel, document) {
     webviewPanel.webview.options = {
       enableScripts: true,

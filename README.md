@@ -1,88 +1,162 @@
-# Desmos Graphing Calculator for VS Code
+<div align="center">
+  <img src="resources/desmos-logo.svg" width="104" alt="Desmos Graphing Calculator logo">
 
-在 VS Code 编辑器区域中离线使用 Desmos 图形计算器的扩展。
+  # Desmos Graphing Calculator
 
-> 本扩展将本地 Desmos 图形计算器嵌入 VS Code Webview，不需要连接 Desmos 网站即可绘制和保存函数图形。
+  **A focused, offline graphing workspace — native to the VS Code editor.**
 
-## 功能
+  [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.70.0-007ACC?logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com/)
+  [![Offline](https://img.shields.io/badge/Works-Offline-3D9852)](#privacy--offline-first)
+  [![License](https://img.shields.io/badge/License-See%20LICENSE-6B7280)](LICENSE)
+</div>
 
-- 在编辑器区域打开独立的 Desmos 计算器标签页
-- 绘制函数、参数方程、数据表和表达式
-- 打开、保存及另存为 `.des` 图形状态文件
-- 将当前图形导出为 PNG 图片
-- 使用自定义编辑器直接打开 `*.des` 文件
-- 完全离线运行
+<br>
 
-## 使用方式
+Desmos Graphing Calculator brings a complete local graphing canvas into VS Code. Explore functions beside your source code, save portable graph states, and export polished PNGs — all without leaving your editor or relying on a network connection.
 
-### 打开计算器
+> **Built for flow.** Open the calculator in a dedicated editor tab, work in a dark interface that belongs in VS Code, and return to your code whenever you need.
 
-使用以下任一方式打开计算器：
+---
 
-1. 按 `Ctrl+Shift+P`，运行 **Desmos：打开计算器**。
-2. 点击任意代码编辑器右上角的 Desmos 小图标；如果图标被折叠，点击 `...` 后选择 **Desmos：打开计算器**。
+## Highlights
 
-计算器会作为独立标签页显示在代码编辑器区域，不会占用左侧侧边栏。
+<table>
+  <tr>
+    <td width="50%">
+      <h3>▣ Editor-native workspace</h3>
+      Open Desmos as a first-class editor tab, not a browser window or a crowded sidebar.
+    </td>
+    <td width="50%">
+      <h3>◒ Offline by design</h3>
+      The calculator runtime is bundled locally, so graphing remains available without an internet connection.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>⌁ Full graphing canvas</h3>
+      Work with functions, parametric equations, tables, expressions, sliders, and graph settings.
+    </td>
+    <td width="50%">
+      <h3>⇩ Portable output</h3>
+      Keep editable `.des` graph states or export the current view as a high-resolution PNG.
+    </td>
+  </tr>
+</table>
 
-### 打开 `.des` 文件
+## Quick Start
 
-在 VS Code 中直接打开扩展名为 `.des` 的文件，扩展会自动使用 Desmos 图形编辑器加载它。
+### Open the calculator
 
-`.des` 文件是 Desmos 图形状态的 JSON 文件，可以包含表达式、表格、视口和图形配置。
-
-### 文件操作
-
-计算器顶部工具栏包含：
-
-| 操作 | 说明 |
+| Method | Action |
 | --- | --- |
-| 新建 | 清空当前图形 |
-| 打开 | 选择已有 `.des` 文件并加载 |
-| 保存 | 保存当前图形状态 |
-| 另存为 | 保存为新的 `.des` 文件 |
-| 导出 PNG | 导出当前图形截图 |
+| **Command Palette** | Press `Ctrl+Shift+P`, then run **Desmos: Open Calculator**. |
+| **Editor toolbar** | Click the Desmos icon in the upper-right corner of any editor. If space is limited, find it in the `...` overflow menu. |
+| **Graph file** | Open any `.des` file and VS Code launches the Desmos Graph editor automatically. |
 
-## 开发
+The calculator always opens in the **editor area**, alongside files and split editor groups.
 
-### 环境要求
+### Create your first graph
 
-- VS Code `^1.70.0`
-- Node.js（用于语法校验和调试扩展）
+1. Open **Desmos: Open Calculator**.
+2. Enter an expression such as `y=sin(x)` or `y=x^2` in the expressions panel.
+3. Pan, zoom, or adjust graph settings as needed.
+4. Select **Save** to create a reusable `.des` graph file, or **Export** to capture a PNG.
 
-### 本地调试
+## What You Can Do
 
-1. 在 VS Code 中打开本项目目录。
-2. 按 `F5` 启动扩展开发宿主。
-3. 在新打开的 VS Code 窗口中运行 **Desmos：打开计算器**。
+| Capability | Details |
+| --- | --- |
+| **Graph expressions** | Plot functions, inequalities, parametric equations, polar relations, points, and lists. |
+| **Use data tables** | Enter, inspect, and visualize tabular values directly in the graph workspace. |
+| **Save graph state** | Store expressions, folders, graph settings, viewport information, and other Desmos state in a `.des` file. |
+| **Open existing work** | Open local `.des` files through VS Code or from the calculator toolbar. |
+| **Export visual output** | Export the active graph canvas as a PNG image. |
+| **Stay offline** | No remote graphing service is required during normal calculator use. |
 
-如果使用软链接方式安装开发版本，修改文件后执行 **开发人员：重新加载窗口** 即可加载最新代码。
+## File Format
 
-### 项目结构
+`.des` files are JSON-based Desmos graph states. They preserve the editable graph — not just an image — so you can commit them with a project, exchange them with teammates, or reopen them later in this extension.
+
+```text
+my-model.des     # Editable graph state
+my-model.png     # Exported graph snapshot
+```
+
+## Interface Philosophy
+
+The extension is intentionally optimized for development workflows:
+
+- **Editor-first** — the calculator appears where your code already lives.
+- **Dark by default** — a deep visual theme reduces contrast switching in dark VS Code setups.
+- **Minimal chrome** — the toolbar exposes only essential file actions: New, Open, Save, Save As, and Export.
+- **No side-panel lock-in** — use VS Code split editors to keep code and graphs visible together.
+
+## Development
+
+### Prerequisites
+
+- Visual Studio Code `^1.70.0`
+- Node.js, for validation and extension debugging
+
+### Run locally
+
+```bash
+# Open this repository in VS Code, then:
+# Press F5 to launch an Extension Development Host.
+```
+
+In the development host, open the Command Palette and run **Desmos: Open Calculator**.
+
+For a symbolic-link installation, update the source files and run **Developer: Reload Window** to refresh the loaded extension.
+
+### Architecture
 
 ```text
 .
-├── extension.js                 # 扩展入口与 VS Code API 注册
-├── calculator.js                # 本地 Desmos 图形计算器运行库
-├── webview.css                  # Webview 页面样式
-├── resources/                   # 产品与命令图标
+├── extension.js                    Minimal VS Code extension entry point
+├── resources/                      Product and command icons
+├── vendor/
+│   └── desmos/
+│       └── calculator.js           Bundled third-party Desmos runtime
 └── src/
-    ├── host/                    # 扩展宿主逻辑
-    │   ├── desmosDocument.js    # 文档状态模型
-    │   ├── desmosEditorProvider.js # Webview 与自定义编辑器生命周期
-    │   ├── fileService.js       # 文件读写与文件选择对话框
-    │   ├── messageRouter.js     # Webview 消息路由
-    │   └── webviewHtml.js       # Webview HTML 与 CSP 构建
-    └── webview/
-        └── app.js               # 计算器页面交互逻辑
+    ├── extension/                  Extension composition root
+    │   ├── activate.js             VS Code command and editor registration
+    │   └── constants.js            Shared extension identifiers
+    ├── editor/                     Custom editor lifecycle and document state
+    │   ├── desmosDocument.js
+    │   └── desmosEditorProvider.js
+    ├── platform/                   VS Code platform integrations
+    │   └── fileService.js          File I/O and native dialogs
+    ├── bridge/                     Host ↔ Webview communication boundary
+    │   └── messageRouter.js
+    └── webview/                    Browser-side UI assets and behavior
+        ├── app.js                  Desmos initialization and UI events
+        ├── styles.css              Dark interface and toolbar presentation
+        └── webviewHtml.js          CSP-safe Webview document generation
 ```
 
-## 设计说明
+### Design Boundaries
 
-- Webview 只负责 Desmos UI 和用户交互，不直接访问本地文件系统。
-- 文件选择、读写和导出均由 VS Code Extension Host 处理。
-- Webview 与扩展宿主通过消息机制通信。
-- `calculator.js` 是第三方打包运行库；业务代码位于 `src/`，不建议直接修改该库。
+| Layer | Responsibility |
+| --- | --- |
+| **Webview** | Renders the calculator and handles user interaction. It never directly reads or writes local files. |
+| **Extension Host** | Handles native dialogs, `.des` persistence, PNG export, and VS Code editor integration. |
+| **Message boundary** | Keeps UI code isolated from file-system access through structured Webview messages. |
 
-## 许可
+`vendor/desmos/calculator.js` is a bundled third-party runtime. Extend or maintain this project through `src/` and `extension.js` rather than modifying the bundle.
 
-本项目采用仓库中 [`LICENSE`](LICENSE) 文件所述的许可协议。Desmos 名称、商标及其图形计算器相关权利归各自权利人所有。
+## Privacy & Offline-First
+
+Graphing, local file access, and PNG export happen on your machine. The extension does not require a Desmos account, browser session, or network connection for its normal calculator workflow.
+
+## License & Attribution
+
+This project is distributed under the terms in [`LICENSE`](LICENSE).
+
+Desmos, the Desmos name, and the Graphing Calculator are trademarks or property of their respective owners. This project packages a local calculator runtime for VS Code integration and is not affiliated with or endorsed by Desmos Studio PBC.
+
+---
+
+<div align="center">
+  Built for mathematical thinking without breaking your coding flow.
+</div>

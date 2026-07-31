@@ -1,7 +1,7 @@
 {
   "name": "vscode-desmos",
   "displayName": "Desmos Graphing Calculator",
-  "description": "在 VS Code 中离线使用 Desmos 图形计算器。",
+  "description": "Use the Desmos Graphing Calculator offline inside VS Code.",
   "version": "1.0.2",
   "publisher": "kirk",
   "icon": "resources/desmos-logo.svg",
@@ -16,10 +16,10 @@
   "main": "./extension.js",
   "files": [
     "extension.js",
-    "calculator.js",
-    "webview.css",
+    "vendor/desmos/**/*.js",
     "resources/**/*.svg",
     "src/**/*.js",
+    "src/**/*.css",
     "package.json",
     "README.md"
   ],
@@ -27,7 +27,7 @@
     "commands": [
       {
         "command": "vscode-desmos.openCalculator",
-        "title": "Desmos：打开计算器",
+        "title": "Desmos: Open Calculator",
         "icon": {
           "light": "resources/desmos-command.svg",
           "dark": "resources/desmos-command.svg"
@@ -50,7 +50,7 @@
     "customEditors": [
       {
         "viewType": "desmos.graph",
-        "displayName": "Desmos 图形",
+        "displayName": "Desmos Graph",
         "selector": [
           {
             "filenamePattern": "*.des"

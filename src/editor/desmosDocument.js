@@ -1,7 +1,7 @@
 const vscode = require('vscode');
 
 /**
- * Desmos 文档模型：只管理内存内容、dirty 状态和 VS Code 文档事件。
+ * Desmos document model: manages in-memory content, dirty state, and VS Code document events.
  */
 class DesmosDocument {
   constructor(uri, content) {
@@ -18,7 +18,7 @@ class DesmosDocument {
   get onDidDispose() { return this._onDidDispose.event; }
   get onDidChange() { return this._onDidChange.event; }
 
-  /** 更新内存内容，并通知 Custom Editor Provider。 */
+  /** Updates in-memory content and notifies the Custom Editor Provider. */
   update(content) {
     if (content === this._content) return;
     this._content = content;
@@ -26,7 +26,7 @@ class DesmosDocument {
     this._onDidChange.fire({ document: this, content });
   }
 
-  /** 保存成功后清除 dirty 标记。 */
+  /** Clears the dirty flag after a successful save. */
   markSaved(content) {
     this._content = content;
     this._isDirty = false;

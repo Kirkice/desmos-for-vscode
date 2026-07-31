@@ -1,8 +1,8 @@
 const vscode = require('vscode');
 
 /**
- * 文件服务：统一封装 VS Code 文件系统和文件选择对话框。
- * 宿主层负责所有文件 IO，Webview 不直接接触 Node.js 文件系统。
+ * File service: centralizes VS Code file APIs and file-picker dialogs.
+ * The extension host owns file I/O; the Webview never accesses Node.js file APIs directly.
  */
 class FileService {
   async read(uri) {
@@ -18,8 +18,8 @@ class FileService {
   async chooseOpenFile() {
     const result = await vscode.window.showOpenDialog({
       canSelectMany: false,
-      openLabel: '打开 Desmos 图形',
-      filters: { 'Desmos 文件': ['des'] }
+      openLabel: 'Open Desmos Graph',
+      filters: { 'Desmos Files': ['des'] }
     });
     return result && result[0];
   }
@@ -27,14 +27,14 @@ class FileService {
   async chooseSaveFile(title) {
     const result = await vscode.window.showSaveDialog({
       saveLabel: title,
-      filters: { 'Desmos 文件': ['des'] }
+      filters: { 'Desmos Files': ['des'] }
     });
     return result;
   }
 
   async choosePngFile() {
     const result = await vscode.window.showSaveDialog({
-      saveLabel: '导出图像',
+      saveLabel: 'Export Image',
       filters: { PNG: ['png'] }
     });
     return result;
@@ -42,7 +42,7 @@ class FileService {
 
   async writePng(uri, dataUrl) {
     const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl || '');
-    if (!match) throw new Error('无效的 PNG 数据');
+    if (!match) throw new Error('Invalid PNG data');
     await vscode.workspace.fs.writeFile(uri, Buffer.from(match[1], 'base64'));
   }
 }
