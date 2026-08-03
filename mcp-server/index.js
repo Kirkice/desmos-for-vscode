@@ -24,6 +24,31 @@ const tools = [
       operations: { type: 'array', minItems: 1, items: { type: 'object' } }
     }
   }, 'expressions.patch'),
+  tool('desmos_get_expression', 'Get one expression by ID.', {
+    type: 'object', required: ['expressionId'], properties: { sessionId: { type: 'string' }, expressionId: { type: 'string' } }
+  }, 'expressions.get'),
+  tool('desmos_add_expression', 'Add one Desmos expression, folder, note, or table.', semanticWriteSchema({ expression: { type: 'object' } }), 'expressions.add'),
+  tool('desmos_update_expression', 'Update one expression by ID.', semanticWriteSchema({ expressionId: { type: 'string' }, patch: { type: 'object' } }), 'expressions.update'),
+  tool('desmos_remove_expression', 'Remove one expression by ID.', semanticWriteSchema({ expressionId: { type: 'string' } }), 'expressions.remove'),
+  tool('desmos_reorder_expressions', 'Reorder every expression in the graph.', semanticWriteSchema({ expressionIds: { type: 'array', minItems: 1, items: { type: 'string' } } }), 'expressions.reorder'),
+  tool('desmos_create_folder', 'Create an expression folder.', semanticWriteSchema({ title: { type: 'string' }, hidden: { type: 'boolean' } }), 'expressions.createFolder'),
+  tool('desmos_create_note', 'Create a text note in the graph.', semanticWriteSchema({ text: { type: 'string' } }), 'expressions.createNote'),
+  tool('desmos_create_table', 'Create a Desmos table with optional columns.', semanticWriteSchema({ columns: { type: 'array' } }), 'expressions.createTable'),
+  tool('desmos_validate_graph', 'Validate graph structure, references, visibility, and viewport.', sessionSchema(), 'graph.validate'),
+  tool('desmos_analyze_expression', 'Analyze one expression and its referenced variables.', {
+    type: 'object', required: ['expressionId'], properties: { sessionId: { type: 'string' }, expressionId: { type: 'string' } }
+  }, 'graph.analyzeExpression'),
+  tool('desmos_find_expression_dependencies', 'Build expression-to-expression variable dependencies.', sessionSchema(), 'graph.findDependencies'),
+  tool('desmos_list_parameters', 'List numeric parameter and slider expressions.', sessionSchema(), 'parameters.list'),
+  tool('desmos_get_parameter', 'Get one parameter by name.', {
+    type: 'object', required: ['name'], properties: { sessionId: { type: 'string' }, name: { type: 'string' } }
+  }, 'parameters.get'),
+  tool('desmos_set_parameter', 'Set a parameter value and optional slider bounds.', semanticWriteSchema({ name: { type: 'string' }, value: { type: 'number' }, min: { type: 'number' }, max: { type: 'number' }, step: { type: 'number' } }), 'parameters.set'),
+  tool('desmos_create_slider', 'Create a numeric parameter with slider bounds.', semanticWriteSchema({ name: { type: 'string' }, value: { type: 'number' }, min: { type: 'number' }, max: { type: 'number' }, step: { type: 'number' } }), 'parameters.createSlider'),
+  tool('desmos_find_parameter_impact', 'Find expressions that reference a parameter.', {
+    type: 'object', required: ['name'], properties: { sessionId: { type: 'string' }, name: { type: 'string' } }
+  }, 'parameters.impact'),
+  tool('desmos_set_animation_config', 'Configure parameter animation state and loop mode.', semanticWriteSchema({ name: { type: 'string' }, playing: { type: 'boolean' }, loopMode: { type: 'string' } }), 'animation.setConfig'),
   tool('desmos_set_viewport', 'Set graph math bounds. Supply expectedRevision to prevent overwriting user changes.', {
     type: 'object',
     required: ['viewport'],
@@ -51,6 +76,18 @@ const tools = [
 
 function tool(name, description, inputSchema, gatewayMethod) {
   return { name, description, inputSchema, gatewayMethod };
+}
+
+function semanticWriteSchema(properties) {
+  return {
+    type: 'object',
+    required: Object.keys(properties),
+    properties: {
+      sessionId: { type: 'string' },
+      expectedRevision: { type: 'integer', minimum: 0 },
+      ...properties
+    }
+  };
 }
 
 function sessionSchema() {

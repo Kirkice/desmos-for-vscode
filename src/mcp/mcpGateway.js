@@ -79,6 +79,15 @@ class McpGateway {
       toolNames: [
         'desmos_list_sessions', 'desmos_get_active_session', 'desmos_get_graph',
         'desmos_get_expressions', 'desmos_apply_expression_patch',
+        'desmos_get_expression', 'desmos_add_expression',
+        'desmos_update_expression', 'desmos_remove_expression',
+        'desmos_reorder_expressions', 'desmos_create_folder',
+        'desmos_create_note', 'desmos_create_table',
+        'desmos_validate_graph', 'desmos_analyze_expression',
+        'desmos_find_expression_dependencies', 'desmos_list_parameters',
+        'desmos_get_parameter', 'desmos_set_parameter',
+        'desmos_create_slider', 'desmos_find_parameter_impact',
+        'desmos_set_animation_config',
         'desmos_set_viewport', 'desmos_set_graph_settings',
         'desmos_save_as', 'desmos_export_png'
       ],
@@ -164,6 +173,23 @@ class McpGateway {
       case 'graph.get': return this.graphService.getGraph(params.sessionId);
       case 'expressions.list': return this.graphService.listExpressions(params.sessionId);
       case 'expressions.patch': return this.graphService.patchExpressions(params);
+      case 'expressions.get': return this.graphService.getExpression(params);
+      case 'expressions.add': return this.graphService.addExpression(params);
+      case 'expressions.update': return this.graphService.updateExpression(params);
+      case 'expressions.remove': return this.graphService.removeExpression(params);
+      case 'expressions.reorder': return this.graphService.reorderExpressions(params);
+      case 'expressions.createFolder': return this.graphService.createFolder(params);
+      case 'expressions.createNote': return this.graphService.createNote(params);
+      case 'expressions.createTable': return this.graphService.createTable(params);
+      case 'graph.validate': return this.graphService.validateGraph(params.sessionId);
+      case 'graph.analyzeExpression': return this.graphService.analyzeExpression(params);
+      case 'graph.findDependencies': return this.graphService.findDependencies(params.sessionId);
+      case 'parameters.list': return this.graphService.listParameters(params.sessionId);
+      case 'parameters.get': return this.graphService.getParameter(params);
+      case 'parameters.set': return this.graphService.setParameter(params);
+      case 'parameters.createSlider': return this.graphService.createSlider(params);
+      case 'parameters.impact': return this.graphService.findParameterImpact(params);
+      case 'animation.setConfig': return this.graphService.setAnimationConfig(params);
       case 'viewport.set': return this.graphService.setViewport(params);
       case 'settings.set': return this.graphService.setSettings(params);
       case 'file.saveAs': return this.graphService.saveAs(params);

@@ -2,9 +2,8 @@
   "name": "vscode-desmos",
   "displayName": "Desmos Graphing Calculator",
   "description": "Use the Desmos Graphing Calculator offline inside VS Code.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "kirk",
-  "icon": "resources/desmos-logo.svg",
   "engines": {
     "vscode": "^1.70.0"
   },

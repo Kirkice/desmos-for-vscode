@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="resources/desmos-logo.svg" width="104" alt="Desmos Graphing Calculator logo">
-
   # Desmos Graphing Calculator
 
   **A focused, offline graphing workspace — native to the VS Code editor.**
@@ -132,10 +130,12 @@ For a symbolic-link installation, update the source files and run **Developer: R
     ├── bridge/                     Host ↔ Webview communication boundary
     │   └── messageRouter.js
     ├── mcp/                        Local gateway, sessions, RPC, and graph services
-    │   ├── calculatorRpcBroker.js
-    │   ├── graphService.js
-    │   ├── mcpGateway.js
-    │   └── sessionRegistry.js
+     │   ├── calculatorRpcBroker.js
+     │   ├── graphAnalyzer.js
+     │   ├── graphService.js
+     │   ├── mcpGateway.js
+     │   ├── parameterService.js
+     │   └── sessionRegistry.js
     └── webview/                    Browser-side UI assets and behavior
         ├── app.js                  Desmos initialization and UI events
         ├── styles.css              Dark interface and toolbar presentation
@@ -196,6 +196,23 @@ Use `desmos.mcpServer.enabled` to control automatic startup and `desmos.mcpServe
 | `desmos_set_graph_settings` | Updates supported graph settings. |
 | `desmos_save_as` | Saves a graph to a workspace-relative `.des` path. |
 | `desmos_export_png` | Exports a graph to a workspace-relative PNG path. |
+| `desmos_get_expression` | Gets one expression by ID. |
+| `desmos_add_expression` | Adds an expression, folder, note, or table. |
+| `desmos_update_expression` | Updates one expression by ID. |
+| `desmos_remove_expression` | Removes one expression by ID. |
+| `desmos_reorder_expressions` | Reorders all expressions atomically. |
+| `desmos_create_folder` | Creates an expression folder. |
+| `desmos_create_note` | Creates a text note. |
+| `desmos_create_table` | Creates a table state. |
+| `desmos_validate_graph` | Validates graph structure and references. |
+| `desmos_analyze_expression` | Analyzes one expression. |
+| `desmos_find_expression_dependencies` | Builds expression dependencies. |
+| `desmos_list_parameters` | Lists numeric parameters and sliders. |
+| `desmos_get_parameter` | Gets one parameter by name. |
+| `desmos_set_parameter` | Changes a parameter value or slider bounds. |
+| `desmos_create_slider` | Creates a numeric slider parameter. |
+| `desmos_find_parameter_impact` | Finds expressions affected by a parameter. |
+| `desmos_set_animation_config` | Sets parameter animation configuration. |
 
 Write tools accept an optional `expectedRevision`. Supplying the latest revision returned by a read tool prevents an AI client from overwriting graph edits made by a user after the read.
 

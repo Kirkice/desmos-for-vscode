@@ -67,9 +67,21 @@
       if (operation.type === 'add') calculator.setExpression(operation.expression);
       else if (operation.type === 'update') calculator.setExpression({ id: operation.id, ...operation.patch });
       else if (operation.type === 'remove') calculator.removeExpression({ id: operation.id });
+      else if (operation.type === 'reorder') reorderExpressions(operation.ids);
       else throw new Error(`Unsupported expression operation: ${operation.type}`);
     }
     return { state: getState(), applied: (operations || []).length };
+  }
+
+  function reorderExpressions(ids) {
+    const state = getState();
+    const list = state.expressions?.list || [];
+    const byId = new Map(list.map(expression => [expression.id, expression]));
+    if (!Array.isArray(ids) || ids.length !== list.length || ids.some(id => !byId.has(id))) {
+      throw new Error('Reorder operation must include every expression exactly once.');
+    }
+    const reordered = ids.map(id => byId.get(id));
+    calculator.setState({ ...state, expressions: { ...state.expressions, list: reordered } });
   }
 
   function handleRpc(method, params) {
